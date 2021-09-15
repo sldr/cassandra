@@ -35,6 +35,7 @@ public final class WindowsTimer
         try
         {
             Native.register("winmm");
+            available = true;
         }
         catch (NoClassDefFoundError e)
         {
