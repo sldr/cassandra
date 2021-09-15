@@ -27,6 +27,8 @@ import com.sun.jna.Native;
 public final class WindowsTimer
 {
     private static final Logger logger = LoggerFactory.getLogger(WindowsTimer.class);
+    
+    private static boolean available;
 
     static
     {
@@ -37,6 +39,10 @@ public final class WindowsTimer
         catch (NoClassDefFoundError e)
         {
             logger.warn("JNA not found. winmm.dll cannot be registered. Performance will be negatively impacted on this node.");
+        }
+        catch (UnsatisfiedLinkError e)
+        {
+            logger.error("Failed to link the winmm.dll library against JNA. Performance will be negatively impacted on this node.", e);
         }
         catch (Exception e)
         {
@@ -54,6 +60,8 @@ public final class WindowsTimer
         if (period == 0)
             return;
         assert(period > 0);
+        if (!available)
+            return;
         if (timeBeginPeriod(period) != 0)
             logger.warn("Failed to set timer to : {}. Performance will be degraded.", period);
     }
@@ -63,6 +71,8 @@ public final class WindowsTimer
         if (period == 0)
             return;
         assert(period > 0);
+        if (!available)
+            return;
         if (timeEndPeriod(period) != 0)
             logger.warn("Failed to end accelerated timer period. System timer will remain set to: {} ms.", period);
     }
